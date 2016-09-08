@@ -10,19 +10,20 @@ import com.oracle.jsonb.demo.serializer.AnimalsSerializer;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
 public class Demo {
-    private static final Jsonb jsonb;
-    private static final Jsonb jsonbAdapted;
-    private static final Jsonb jsonbCustom;
-    private static final List<Animal> animals;
-    private static final Scanner scanner;
+    private final Jsonb jsonb;
+    private final Jsonb jsonbAdapted;
+    private final Jsonb jsonbCustom;
+    private final List<Animal> animals;
+    private final Type animalListType;
+    private final Scanner scanner;
 
-    static {
+    private Demo() {
         JsonbConfig jsonbDefaultConfig = new JsonbConfig();
         jsonbDefaultConfig.withFormatting(true);
         jsonb = JsonbBuilder.create(jsonbDefaultConfig);
@@ -45,31 +46,36 @@ public class Demo {
         animals.add(new Cat("Bob", 10, true, false));
         animals.add(new Dog("Milo", 1, true, true));
         animals.add(new Animal("Tweety", 3, false));
+        animalListType = new ArrayList<Animal>() {
+        }.getClass().getGenericSuperclass();
 
         scanner = new Scanner(System.in);
     }
 
     public static void main(String[] args) {
-        while(true) {
+        new Demo().run();
+    }
+
+    private void run() {
+        while (true) {
             printOptions();
-            String input = scanner.nextLine();
-            switch (input) {
-                case "q":
-                case "Q":
-                    return;
-                case "1":
-                    runDefaultLoop();
-                    break;
-                case "2":
-                    runAdapterLoop();
-                    break;
-                case "3":
-                    runSerializerLoop();
+            switch (scanner.nextLine()) {
+            case "q":
+            case "Q":
+                return;
+            case "1":
+                runDefaultLoop();
+                break;
+            case "2":
+                runAdapterLoop();
+                break;
+            case "3":
+                runSerializerLoop();
             }
         }
     }
 
-    private static void printOptions() {
+    private void printOptions() {
         System.out.println("----------------------------------- JSON-B Demo -----------------------------------\n");
         System.out.println("   Choose a scenario to demonstrate or press Q to end the demonstration:\n");
         System.out.println("1. Marshalling and unmarshalling using default settings");
@@ -78,7 +84,7 @@ public class Demo {
         System.out.println("-----------------------------------------------------------------------------------");
     }
 
-    private static void runDefaultLoop() {
+    private void runDefaultLoop() {
         System.out.println("List of animals:");
         animals.forEach(animal -> System.out.println("\t" + animal));
         scanner.nextLine();
@@ -89,40 +95,40 @@ public class Demo {
         scanner.nextLine();
 
         System.out.println("\nUnmarshalling JSON string produced using default serialization:");
-        Animal[] animalsUnmarshalled = jsonb.fromJson(defaultMarshalling, Animal[].class);
-        Arrays.stream(animalsUnmarshalled).forEach(animal -> System.out.println("\t" + animal));
+        List<Animal> animalsUnmarshalled = jsonb.fromJson(defaultMarshalling, animalListType);
+        animalsUnmarshalled.forEach(animal -> System.out.println("\t" + animal));
         System.out.println("\n");
     }
 
-    private static void runAdapterLoop() {
+    private void runAdapterLoop() {
         System.out.println("List of animals:");
         animals.forEach(animal -> System.out.println("\t" + animal));
         scanner.nextLine();
 
         System.out.println("\nAdapted marshalling to JSON:");
-        final String adaptedMarshalling = jsonbAdapted.toJson(animals.toArray(new Animal[0]));
+        final String adaptedMarshalling = jsonbAdapted.toJson(animals, animalListType);
         System.out.println(adaptedMarshalling);
         scanner.nextLine();
 
         System.out.println("\nUnmarshalling JSON string produced using serialization with adapter:");
-        Animal[] animalsUnmarshalledAdapter = jsonbAdapted.fromJson(adaptedMarshalling, Animal[].class);
-        Arrays.stream(animalsUnmarshalledAdapter).forEach(animal -> System.out.println("\t" + animal));
+        List<Animal> animalsUnmarshalledAdapter = jsonbAdapted.fromJson(adaptedMarshalling, animalListType);
+        animalsUnmarshalledAdapter.forEach(animal -> System.out.println("\t" + animal));
         System.out.println("\n");
     }
 
-    private static void runSerializerLoop() {
+    private void runSerializerLoop() {
         System.out.println("List of animals:");
         animals.forEach(animal -> System.out.println("\t" + animal));
         scanner.nextLine();
 
         System.out.println("\nCustom marshalling to JSON:");
-        final String customMarshalling = jsonbCustom.toJson(animals.toArray(new Animal[0]));
+        final String customMarshalling = jsonbCustom.toJson(animals, animalListType);
         System.out.println(customMarshalling);
         scanner.nextLine();
 
         System.out.println("\nUnmarshalling JSON string produced using custom serialization:");
-        Animal[] animalsUnmarshalledCustom = jsonbCustom.fromJson(customMarshalling, Animal[].class);
-        Arrays.stream(animalsUnmarshalledCustom).forEach(animal -> System.out.println("\t" + animal));
+        List<Animal> animalsUnmarshalledCustom = jsonbCustom.fromJson(customMarshalling, animalListType);
+        animalsUnmarshalledCustom.forEach(animal -> System.out.println("\t" + animal));
         System.out.println("\n");
     }
 }

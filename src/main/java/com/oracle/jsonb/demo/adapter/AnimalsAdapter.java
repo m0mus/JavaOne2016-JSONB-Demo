@@ -6,9 +6,12 @@ import com.oracle.jsonb.demo.model.Dog;
 
 import javax.json.bind.adapter.JsonbAdapter;
 
-public class AnimalsAdapter implements JsonbAdapter<Animal[], AnimalsAdapter.AnimalAdapted[]> {
+import static com.oracle.jsonb.demo.adapter.AnimalsAdapter.AnimalAdapted.TYPE.CAT;
+import static com.oracle.jsonb.demo.adapter.AnimalsAdapter.AnimalAdapted.TYPE.DOG;
+
+public class AnimalsAdapter implements JsonbAdapter<Animal, AnimalsAdapter.AnimalAdapted> {
     public static final class AnimalAdapted {
-        private enum TYPE {
+        public enum TYPE {
             CAT, DOG, GENERIC
         };
 
@@ -72,35 +75,27 @@ public class AnimalsAdapter implements JsonbAdapter<Animal[], AnimalsAdapter.Ani
     }
 
     @Override
-    public AnimalAdapted[] adaptToJson(Animal[] animals) throws Exception {
-        AnimalAdapted[] animalsAdapted = new AnimalAdapted[animals.length];
-        for (int i = 0; i < animals.length; i++) {
-            Animal animal = animals[i];
-            AnimalAdapted animalAdapted = new AnimalAdapted();
-            if (Cat.class.isAssignableFrom(animal.getClass())) {
-                animalAdapted.type = AnimalAdapted.TYPE.CAT;
-                animalAdapted.cuddly = ((Cat) animal).isCuddly();
-            } else if (Dog.class.isAssignableFrom(animal.getClass())) {
-                animalAdapted.type = AnimalAdapted.TYPE.DOG;
-                animalAdapted.barking = ((Dog) animal).isBarking();
-            } else {
-                animalAdapted.type = AnimalAdapted.TYPE.GENERIC;
-            }
-            animalAdapted.name = animal.getName();
-            animalAdapted.age = animal.getAge();
-            animalAdapted.furry = animal.isFurry();
-            animalsAdapted[i] = animalAdapted;
+    public AnimalAdapted adaptToJson(Animal animal) throws Exception {
+        AnimalAdapted animalAdapted = new AnimalAdapted();
+        if (Cat.class.isAssignableFrom(animal.getClass())) {
+            animalAdapted.type = CAT;
+            animalAdapted.cuddly = ((Cat) animal).isCuddly();
+        } else if (Dog.class.isAssignableFrom(animal.getClass())) {
+            animalAdapted.type = DOG;
+            animalAdapted.barking = ((Dog) animal).isBarking();
+        } else {
+            animalAdapted.type = AnimalAdapted.TYPE.GENERIC;
         }
-        return animalsAdapted;
+        animalAdapted.name = animal.getName();
+        animalAdapted.age = animal.getAge();
+        animalAdapted.furry = animal.isFurry();
+        return animalAdapted;
     }
 
     @Override
-    public Animal[] adaptFromJson(AnimalAdapted[] animalsAdapted) throws Exception {
-        Animal[] animals = new Animal[animalsAdapted.length];
-        for (int i = 0; i < animalsAdapted.length; i++) {
-            AnimalAdapted animalAdapted = animalsAdapted[i];
-            Animal animal;
-            switch (animalAdapted.type) {
+    public Animal adaptFromJson(AnimalAdapted animalAdapted) throws Exception {
+        Animal animal;
+        switch (animalAdapted.type) {
             case CAT:
                 animal = new Cat();
                 ((Cat) animal).setCuddly(animalAdapted.cuddly);
@@ -111,12 +106,10 @@ public class AnimalsAdapter implements JsonbAdapter<Animal[], AnimalsAdapter.Ani
                 break;
             default:
                 animal = new Animal();
-            }
-            animal.setName(animalAdapted.name);
-            animal.setAge(animalAdapted.age);
-            animal.setFurry(animalAdapted.furry);
-            animals[i] = animal;
         }
-        return animals;
+        animal.setName(animalAdapted.name);
+        animal.setAge(animalAdapted.age);
+        animal.setFurry(animalAdapted.furry);
+        return animal;
     }
 }
