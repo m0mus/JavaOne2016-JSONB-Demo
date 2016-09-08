@@ -2,6 +2,7 @@ package com.oracle.jsonb.demo;
 
 import com.oracle.jsonb.demo.adapter.AnimalsAdapter;
 import com.oracle.jsonb.demo.model.Animal;
+import com.oracle.jsonb.demo.model.Carrier;
 import com.oracle.jsonb.demo.model.Cat;
 import com.oracle.jsonb.demo.model.Dog;
 import com.oracle.jsonb.demo.serializer.AnimalsDeserializer;
@@ -21,6 +22,8 @@ public class Demo {
     private final Jsonb jsonbCustom;
     private final List<Animal> animals;
     private final Type animalListType;
+    private final List<Carrier<Animal>> carriers;
+    private final Type carrierListType;
     private final Scanner scanner;
 
     private Demo() {
@@ -46,8 +49,12 @@ public class Demo {
         animals.add(new Cat("Bob", 10, true, false));
         animals.add(new Dog("Milo", 1, true, true));
         animals.add(new Animal("Tweety", 3, false));
-        animalListType = new ArrayList<Animal>() {
-        }.getClass().getGenericSuperclass();
+        animalListType = new ArrayList<Animal>(){}.getClass().getGenericSuperclass();
+
+        carriers = new ArrayList<>();
+        carriers.add(new Carrier<>(Carrier.TYPE.BAG, new Cat("Felix", 6, true, true)));
+        carriers.add(new Carrier<>(Carrier.TYPE.CRATE, new Dog("Max", 7, true, false)));
+        carrierListType = new ArrayList<Carrier<Animal>>(){}.getClass().getGenericSuperclass();
 
         scanner = new Scanner(System.in);
     }
@@ -71,6 +78,9 @@ public class Demo {
                 break;
             case "3":
                 runSerializerLoop();
+                break;
+            case "4":
+                runGenericLoop();
             }
         }
     }
@@ -80,7 +90,8 @@ public class Demo {
         System.out.println("   Choose a scenario to demonstrate or press Q to end the demonstration:\n");
         System.out.println("1. Marshalling and unmarshalling using default settings");
         System.out.println("2. Marshalling and unmarshalling using custom JsonbAdapter");
-        System.out.println("3. Marshalling and unmarshalling using custom JsonbSerializer and JsonbDeserializer\n");
+        System.out.println("3. Marshalling and unmarshalling using custom JsonbSerializer and JsonbDeserializer");
+        System.out.println("4. Marshalling and unmarshalling of generic type using custom serialization\n");
         System.out.println("-----------------------------------------------------------------------------------");
     }
 
@@ -129,6 +140,22 @@ public class Demo {
         System.out.println("\nUnmarshalling JSON string produced using custom serialization:");
         List<Animal> animalsUnmarshalledCustom = jsonbCustom.fromJson(customMarshalling, animalListType);
         animalsUnmarshalledCustom.forEach(animal -> System.out.println("\t" + animal));
+        System.out.println("\n");
+    }
+
+    private void runGenericLoop() {
+        System.out.println("List of carriers:");
+        carriers.forEach(carrier -> System.out.println("\t" + carrier));
+        scanner.nextLine();
+
+        System.out.println("\nCustom marshalling to JSON:");
+        final String customMarshalling = jsonbCustom.toJson(carriers, carrierListType);
+        System.out.println(customMarshalling);
+        scanner.nextLine();
+
+        System.out.println("\nUnmarshalling JSON string produced using custom serialization:");
+        List<Carrier<? extends Animal>> carriersUnmarshalledCustom = jsonbCustom.fromJson(customMarshalling, carrierListType);
+        carriersUnmarshalledCustom.forEach(carrier -> System.out.println("\t" + carrier));
         System.out.println("\n");
     }
 }
