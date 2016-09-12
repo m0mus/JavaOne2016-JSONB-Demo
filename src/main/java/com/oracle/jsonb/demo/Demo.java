@@ -109,6 +109,7 @@ public class Demo {
         List<Animal> animalsUnmarshalled = jsonb.fromJson(defaultMarshalling, animalListType);
         animalsUnmarshalled.forEach(animal -> System.out.println("\t" + animal));
         System.out.println("\n");
+        scanner.nextLine();
     }
 
     private void runAdapterLoop() {
@@ -125,6 +126,7 @@ public class Demo {
         List<Animal> animalsUnmarshalledAdapter = jsonbAdapted.fromJson(adaptedMarshalling, animalListType);
         animalsUnmarshalledAdapter.forEach(animal -> System.out.println("\t" + animal));
         System.out.println("\n");
+        scanner.nextLine();
     }
 
     private void runSerializerLoop() {
@@ -141,6 +143,7 @@ public class Demo {
         List<Animal> animalsUnmarshalledCustom = jsonbCustom.fromJson(customMarshalling, animalListType);
         animalsUnmarshalledCustom.forEach(animal -> System.out.println("\t" + animal));
         System.out.println("\n");
+        scanner.nextLine();
     }
 
     private void runGenericLoop() {
@@ -157,5 +160,6 @@ public class Demo {
         List<Carrier<? extends Animal>> carriersUnmarshalledCustom = jsonbCustom.fromJson(customMarshalling, carrierListType);
         carriersUnmarshalledCustom.forEach(carrier -> System.out.println("\t" + carrier));
         System.out.println("\n");
+        scanner.nextLine();
     }
 }
