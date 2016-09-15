@@ -70,6 +70,13 @@
                     <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>com.oracle.jsonb.demo.Demo</mainClass>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
