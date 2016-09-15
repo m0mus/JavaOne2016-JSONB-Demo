@@ -24,6 +24,14 @@ public class Carrier<A extends Animal> {
         return carriedPet;
     }
 
+    public void setCarrierType(TYPE carrierType) {
+        this.carrierType = carrierType;
+    }
+
+    public void setCarriedPet(A carriedPet) {
+        this.carriedPet = carriedPet;
+    }
+
     @Override
     public String toString() {
         return "Carrier{" +
