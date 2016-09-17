@@ -43,11 +43,12 @@ public class Demo {
 
     private void printOptions() {
         System.out.println("----------------------------------- JSON-B Demo -----------------------------------\n");
-        System.out.println("   Choose a scenario to demonstrate or press Q to end the demonstration:\n");
-        System.out.println("1. Serialization/Deserialzation of List<Dog> using default settings");
-        System.out.println("2. Serialization/Deserialzation of List<Animal> using adapter");
-        System.out.println("3. Serialization/Deserialzation of List<Person> using serializer");
-        System.out.println("4. Serialization/Deserialzation of List<Carrier<Animal>> using serializer\n");
+        System.out.println("Choose a scenario to demonstrate or press Q to end the demonstration:\n");
+        System.out.println("Serialization and deserialization of\n");
+        System.out.println("1. List<Dog> using default settings");
+        System.out.println("2. List<Animal> using adapter");
+        System.out.println("3. List<Person> using serializer");
+        System.out.println("4. List<Carrier<Animal>> using serializer\n");
         System.out.println("-----------------------------------------------------------------------------------");
     }
 
