@@ -23,20 +23,20 @@ public class Demo {
             printOptions();
             Scanner scanner = new Scanner(System.in);
             switch (scanner.nextLine()) {
-            case "q":
-            case "Q":
-                return;
-            case "1":
-                runDefaultLoop();
-                break;
-            case "2":
-                runAdapterLoop();
-                break;
-            case "3":
-                runSerializerLoop();
-                break;
-            case "4":
-                runGenericLoop();
+                case "q":
+                case "Q":
+                    return;
+                case "1":
+                    runDefaultLoop();
+                    break;
+                case "2":
+                    runAdapterLoop();
+                    break;
+                case "3":
+                    runSerializerLoop();
+                    break;
+                case "4":
+                    runGenericLoop();
             }
         }
     }
@@ -44,126 +44,148 @@ public class Demo {
     private void printOptions() {
         System.out.println("----------------------------------- JSON-B Demo -----------------------------------\n");
         System.out.println("   Choose a scenario to demonstrate or press Q to end the demonstration:\n");
-        System.out.println("1. Marshalling and unmarshalling using default settings");
-        System.out.println("2. Marshalling and unmarshalling using custom JsonbAdapter");
-        System.out.println("3. Marshalling and unmarshalling using custom JsonbSerializer and JsonbDeserializer");
-        System.out.println("4. Marshalling and unmarshalling of generic type using custom serialization\n");
+        System.out.println("1. Serialization/Deserialzation of List<Dog> using default settings");
+        System.out.println("2. Serialization/Deserialzation of List<Animal> using adapter");
+        System.out.println("3. Serialization/Deserialzation of List<Person> using serializer");
+        System.out.println("4. Serialization/Deserialzation of List<Carrier<Animal>> using serializer\n");
         System.out.println("-----------------------------------------------------------------------------------");
     }
 
     private void runDefaultLoop() {
-        JsonbConfig jsonbDefaultConfig = new JsonbConfig();
-        jsonbDefaultConfig.withFormatting(true);
-        Jsonb jsonb = JsonbBuilder.create(jsonbDefaultConfig);
+        // Create default JSONB engine
+        Jsonb jsonb = JsonbBuilder.create();
 
-        List<Person> persons = new ArrayList<>();
-        persons.add(new Person("Dmitry", new Dog("Falco", 3, false, false)));
-        persons.add(new Person("Petros", new Cat("Bob", 10, true, true)));
-        persons.add(new Person("Sylvester", new Animal("Tweety", 3, false)));
-        Type personListType = new ArrayList<Person>(){}.getClass().getGenericSuperclass();
+        // Create list of dogs
+        List<Dog> dogs = new ArrayList<>();
+        dogs.add(new Dog("Falco", 4, false, false));
+        dogs.add(new Dog("Cassidy", 6, false, true));
+        Type dogsListType = new ArrayList<Dog>() {}.getClass().getGenericSuperclass();
 
-        System.out.println("List of persons:");
-        persons.forEach(person -> System.out.println("\t" + person));
+        // Print list of dogs
+        System.out.println("List of dogs:");
+        dogs.forEach(person -> System.out.println("\t" + person));
         Scanner scanner = new Scanner(System.in);
         scanner.nextLine();
 
-        System.out.println("\nDefault marshalling to JSON:");
-        final String defaultMarshalling = jsonb.toJson(persons);
+        // Serialize and print result
+        System.out.println("\nAfter serialization:");
+        final String defaultMarshalling = jsonb.toJson(dogs);
         System.out.println(defaultMarshalling);
         scanner.nextLine();
 
-        System.out.println("\nUnmarshalling JSON string produced using default serialization:");
-        List<Person> personsUnmarshalled = jsonb.fromJson(defaultMarshalling, personListType);
+        // Deserialize and print result
+        System.out.println("\nAfter deserialization:");
+        List<Dog> personsUnmarshalled = jsonb.fromJson(defaultMarshalling, dogsListType);
         personsUnmarshalled.forEach(person -> System.out.println("\t" + person));
         System.out.println("\n");
         scanner.nextLine();
     }
 
+    /**
+     * This sample demonstrate serialization and deserialization of a generic list of objects with the same parent.
+     */
     private void runAdapterLoop() {
-        JsonbConfig jsonbAdaptersConfig = new JsonbConfig();
-        jsonbAdaptersConfig.
-                withFormatting(true).
-                withAdapters(new AnimalAdapter());
-        Jsonb jsonbAdapted = JsonbBuilder.create(jsonbAdaptersConfig);
+        // Create configuration, attach adapters and create JSONB engine
+        JsonbConfig config = new JsonbConfig()
+                .withFormatting(true)
+                .withAdapters(new AnimalAdapter());
+        Jsonb jsonb = JsonbBuilder.create(config);
 
-        List<Person> persons = new ArrayList<>();
-        persons.add(new Person("Dmitry", new Dog("Falco", 3, false, false)));
-        persons.add(new Person("Petros", new Cat("Bob", 10, true, true)));
-        persons.add(new Person("Sylvester", new Animal("Tweety", 3, false)));
-        Type personListType = new ArrayList<Person>(){}.getClass().getGenericSuperclass();
+        // Create a list of animals
+        List<Animal> animals = new ArrayList<>(3);
+        animals.add(new Dog("Falco", 4, false, false));
+        animals.add(new Dog("Cassidy", 6, false, true));
+        animals.add(new Cat("Harris", 10, true, true));
+        Type animalsListType = new ArrayList<Animal>() {}.getClass().getGenericSuperclass();
 
-        System.out.println("List of persons:");
-        persons.forEach(person -> System.out.println("\t" + person));
+        // Print list of animals
+        System.out.println("List of animals:");
+        animals.forEach(animal -> System.out.println("\t" + animal));
         Scanner scanner = new Scanner(System.in);
         scanner.nextLine();
 
-        System.out.println("\nAdapted marshalling to JSON:");
-        final String adaptedMarshalling = jsonbAdapted.toJson(persons, personListType);
+        // Serialize and print result
+        System.out.println("\nAfter serialization:");
+        final String adaptedMarshalling = jsonb.toJson(animals, animalsListType);
         System.out.println(adaptedMarshalling);
         scanner.nextLine();
 
-        System.out.println("\nUnmarshalling JSON string produced using serialization with adapter:");
-        List<Person> personsUnmarshalledAdapter = jsonbAdapted.fromJson(adaptedMarshalling, personListType);
+        // Deserialize and print result
+        System.out.println("\nAfter deserialization:");
+        List<Animal> personsUnmarshalledAdapter = jsonb.fromJson(adaptedMarshalling, animalsListType);
         personsUnmarshalledAdapter.forEach(person -> System.out.println("\t" + person));
         System.out.println("\n");
         scanner.nextLine();
     }
 
+    /**
+     * This sample demonstrates serialization a list of objects having a property of an abstract type.
+     */
     private void runSerializerLoop() {
-        JsonbConfig jsonbSerializersConfig = new JsonbConfig();
-        jsonbSerializersConfig.
-                withFormatting(true).
-                withSerializers(new AnimalSerializer()).
-                withDeserializers(new AnimalDeserializer());
-        Jsonb jsonbCustom = JsonbBuilder.create(jsonbSerializersConfig);
+        // Create configuration, attach (de)serializers and create JSONB engine
+        JsonbConfig config = new JsonbConfig()
+                .withFormatting(true)
+                .withSerializers(new AnimalSerializer())
+                .withDeserializers(new AnimalDeserializer());
+        Jsonb jsonb = JsonbBuilder.create(config);
 
+        // Create a list of persons
         List<Person> persons = new ArrayList<>();
         persons.add(new Person("Dmitry", new Dog("Falco", 3, false, false)));
-        persons.add(new Person("Petros", new Cat("Bob", 10, true, true)));
-        persons.add(new Person("Sylvester", new Animal("Tweety", 3, false)));
-        Type personListType = new ArrayList<Person>(){}.getClass().getGenericSuperclass();
+        persons.add(new Person("Petros", new Cat("Harris", 10, true, true)));
+        Type personListType = new ArrayList<Person>() {}.getClass().getGenericSuperclass();
 
+        // Print list of persons
         System.out.println("List of persons:");
         persons.forEach(person -> System.out.println("\t" + person));
         Scanner scanner = new Scanner(System.in);
         scanner.nextLine();
 
-        System.out.println("\nCustom marshalling to JSON:");
-        final String customMarshalling = jsonbCustom.toJson(persons, personListType);
+        // Serialize and print the result
+        System.out.println("\nAfter serialization:");
+        final String customMarshalling = jsonb.toJson(persons, personListType);
         System.out.println(customMarshalling);
         scanner.nextLine();
 
-        System.out.println("\nUnmarshalling JSON string produced using custom serialization:");
-        List<Person> personsUnmarshalledCustom = jsonbCustom.fromJson(customMarshalling, personListType);
+        // Deserialize and print result
+        System.out.println("\nAfter deserialization:");
+        List<Person> personsUnmarshalledCustom = jsonb.fromJson(customMarshalling, personListType);
         personsUnmarshalledCustom.forEach(person -> System.out.println("\t" + person));
         System.out.println("\n");
         scanner.nextLine();
     }
 
+    /**
+     * This sample demonstrates serialization of a list of generic types.
+     */
     private void runGenericLoop() {
-        JsonbConfig jsonbSerializersConfig = new JsonbConfig();
-        jsonbSerializersConfig.
-                withFormatting(true).
-                withSerializers(new AnimalSerializer()).
-                withDeserializers(new AnimalDeserializer());
-        Jsonb jsonbCustom = JsonbBuilder.create(jsonbSerializersConfig);
+        // Create configuration, attach (de)serializers and create JSONB engine
+        JsonbConfig config = new JsonbConfig()
+                .withFormatting(true)
+                .withSerializers(new AnimalSerializer())
+                .withDeserializers(new AnimalDeserializer());
+        Jsonb jsonbCustom = JsonbBuilder.create(config);
 
+        // Create a list of carrier objects
         List<Carrier<Animal>> carriers = new ArrayList<>();
-        carriers.add(new Carrier<>(Carrier.TYPE.BAG, new Cat("Felix", 6, true, true)));
-        carriers.add(new Carrier<>(Carrier.TYPE.CRATE, new Dog("Max", 7, true, false)));
-        Type carrierListType = new ArrayList<Carrier<Animal>>(){}.getClass().getGenericSuperclass();
+        carriers.add(new Carrier<>(Carrier.TYPE.BAG, new Cat("Harris", 10, true, true)));
+        carriers.add(new Carrier<>(Carrier.TYPE.CRATE, new Dog("Falco", 4, false, false)));
+        Type carrierListType = new ArrayList<Carrier<Animal>>() {}.getClass().getGenericSuperclass();
 
+        // Prints a list of carriers
         System.out.println("List of carriers:");
         carriers.forEach(carrier -> System.out.println("\t" + carrier));
         Scanner scanner = new Scanner(System.in);
         scanner.nextLine();
 
-        System.out.println("\nCustom marshalling to JSON:");
+        // Serialize and print the result
+        System.out.println("\nAfter serialization:");
         final String customMarshalling = jsonbCustom.toJson(carriers, carrierListType);
         System.out.println(customMarshalling);
         scanner.nextLine();
 
-        System.out.println("\nUnmarshalling JSON string produced using custom serialization:");
+        // Deserialize and print result
+        System.out.println("\nAfter deserialization:");
         List<Carrier<Animal>> carriersUnmarshalledCustom = jsonbCustom.fromJson(customMarshalling, carrierListType);
         carriersUnmarshalledCustom.forEach(carrier -> System.out.println("\t" + carrier));
         System.out.println("\n");

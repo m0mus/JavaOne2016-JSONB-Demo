@@ -12,7 +12,6 @@ import javax.json.bind.adapter.JsonbAdapter;
 public class AnimalAdapter implements JsonbAdapter<Animal, JsonObject> {
     private static final String CAT = "CAT";
     private static final String DOG = "DOG";
-    private static final String GENERIC = "GENERIC";
 
     @Override
     public JsonObject adaptToJson(Animal animal) throws Exception {
@@ -24,7 +23,7 @@ public class AnimalAdapter implements JsonbAdapter<Animal, JsonObject> {
             jsonObjectBuilder.add("type", DOG);
             jsonObjectBuilder.add("barking", ((Dog) animal).isBarking());
         } else {
-            jsonObjectBuilder.add("type", GENERIC);
+            throw new Exception("Unknown animal type");
         }
         return jsonObjectBuilder.
                 add("name", animal.getName()).
@@ -46,7 +45,7 @@ public class AnimalAdapter implements JsonbAdapter<Animal, JsonObject> {
                 ((Dog) animal).setBarking(animalAdapted.getBoolean("barking"));
                 break;
             default:
-                animal = new Animal();
+                throw new Exception("Unknown animal type");
         }
         animal.setName(animalAdapted.getString("name"));
         animal.setAge(animalAdapted.getInt("age"));

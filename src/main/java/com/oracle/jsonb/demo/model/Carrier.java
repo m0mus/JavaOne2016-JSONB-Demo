@@ -2,6 +2,10 @@ package com.oracle.jsonb.demo.model;
 
 import javax.json.bind.annotation.JsonbCreator;
 
+/**
+ * A container to carry an animal.
+ * @param <A>
+ */
 public class Carrier<A extends Animal> {
     public enum TYPE {
         BAG, CRATE, TROLLEY
