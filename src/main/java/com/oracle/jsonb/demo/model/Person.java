@@ -1,7 +1,7 @@
 package com.oracle.jsonb.demo.model;
 
 /**
- * Created by dmitry on 14/09/16.
+ * A pet owner.
  */
 public class Person {
     private String name;

@@ -1,5 +1,8 @@
 package com.oracle.jsonb.demo.model;
 
+/**
+ * Class representing a dog.
+ */
 public class Dog extends Animal {
     private Boolean barking;
 

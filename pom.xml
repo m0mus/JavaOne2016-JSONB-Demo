@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.oracle.jsonb.demo</groupId>
-    <artifactId>JSON-B.Demo</artifactId>
+    <artifactId>javaone2016.jsonb.demo</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <repositories>

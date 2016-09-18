@@ -72,7 +72,7 @@ public class Demo {
         System.out.println("\nAfter serialization:");
         final String defaultMarshalling = jsonb.toJson(dogs);
         System.out.println(defaultMarshalling);
-        scanner.nextLine();
+        scanner.nextLine();ª
 
         // Deserialize and print result
         System.out.println("\nAfter deserialization:");

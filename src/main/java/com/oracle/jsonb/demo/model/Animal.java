@@ -1,5 +1,8 @@
 package com.oracle.jsonb.demo.model;
 
+/**
+ * Abstract class representing an animal.
+ */
 public abstract class Animal {
     private String name;
     private int age;
